@@ -10,6 +10,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from datetime import datetime
 import customtkinter as ctk
+import unicodedata
 
 from zip_handler import (
     extract_images_from_zip, collect_images_from_folder,
@@ -263,7 +264,9 @@ class VehicleRegistrationApp:
             
             results = []
             for idx, img_path in enumerate(image_paths):
-                filename = os.path.basename(img_path)
+                raw_filename = os.path.basename(img_path)
+                filename = unicodedata.normalize('NFC', raw_filename)
+                
                 progress = ((idx + 1) / total)
                 
                 self._update_status(f"문서 처리 중... ({idx + 1}/{total}) - {filename}")
