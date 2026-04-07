@@ -284,7 +284,21 @@ def _find_vin(texts: list[str], joined: str) -> str:
     def clean_vin(vin_str: str) -> str:
         # VIN 표준상 I, O, Q는 사용되지 않음 (숫자 1, 0과 혼동 방지)
         # OCR에서 이 문자들이 발견되면 숫자로 교정
-        return vin_str.replace('I', '1').replace('O', '0').replace('Q', '0')
+        cleaned = vin_str.replace('I', '1').replace('O', '0').replace('Q', '0')
+        
+        # 10번째 자리 (제작연도)에는 추가로 U, Z, 0 이 사용되지 않음
+        if len(cleaned) == 17:
+            chars = list(cleaned)
+            # 인덱스 9는 10번째 자리
+            if chars[9] == 'U':
+                chars[9] = 'V'  # U -> V 오인식 교정
+            elif chars[9] == 'Z':
+                chars[9] = '2'  # Z -> 2 오인식 교정
+            elif chars[9] == '0':
+                chars[9] = 'D'  # 0(또는 원래 O/Q) -> D 오인식 교정
+            cleaned = ''.join(chars)
+            
+        return cleaned
     
     # 제외 라벨들 (이 라벨 자체이거나 직접적 연관 텍스트는 건너뛰기)
     skip_labels = ['원동기형식', '원동기', '형식', '사용본거지', '사용본', '본거지', 
